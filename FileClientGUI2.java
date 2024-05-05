@@ -16,7 +16,7 @@ public class FileClientGUI2 extends JFrame{
     private Font f;
     private JLabel capLabel, cap2Label, cap3Label, cap4Label; 
     private JLabel serverLabel, servernumLabel, portLabel, portnumLabel, connectLabel, connectedLabel;
-    private JButton bt1, bt2, bt3, bt4;
+    private JButton bt1, bt2;
     
     private JPanel filesPanel;
 
@@ -91,12 +91,12 @@ public class FileClientGUI2 extends JFrame{
         cap3Label.setFont(f);
         c.add(cap3Label);
 
-        bt3 = new JButton();
+        bt1 = new JButton();
         f = new Font("Times New Roman", Font.BOLD, 15);
-        bt3.setText("Choose");
-        bt3.setBounds(150, 540, 100, 30);
-        bt3.setFont(f);
-        c.add(bt3);
+        bt1.setText("Choose");
+        bt1.setBounds(150, 540, 100, 30);
+        bt1.setFont(f);
+        c.add(bt1);
 
         cap4Label = new JLabel();
         f = new Font("Times New Roman", Font.BOLD, 15);
@@ -105,14 +105,14 @@ public class FileClientGUI2 extends JFrame{
         cap4Label.setFont(f);
         c.add(cap4Label);
 
-        bt4 = new JButton();
+        bt2 = new JButton();
         f = new Font("Times New Roman", Font.BOLD, 12);
-        bt4.setText("UPLOAD");
-        bt4.setBounds(300, 600, 180, 35);
-        bt4.setBackground(Color.BLUE);
-        bt4.setForeground(Color.WHITE);
-        bt4.setFont(f);
-        c.add(bt4);
+        bt2.setText("UPLOAD");
+        bt2.setBounds(300, 600, 180, 35);
+        bt2.setBackground(Color.BLUE);
+        bt2.setForeground(Color.WHITE);
+        bt2.setFont(f);
+        c.add(bt2);
     }
 
     // Method to add a file entry to the filesPanel
