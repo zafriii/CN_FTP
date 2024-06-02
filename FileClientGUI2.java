@@ -1,4 +1,4 @@
-import javax.swing.JButton;
+rimport javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -247,7 +247,7 @@ public class FileClientGUI2 extends JFrame {
 
         cap3Label = new JLabel();
         f = new Font("Times New Roman", Font.BOLD, 15);
-        cap3Label.setText("Upload new files to the Cloud");
+        cap3Label.setText("Upload new files to the Server");
         cap3Label.setBounds(270, 450, 700, 100);
         cap3Label.setFont(f);
         c.add(cap3Label);
