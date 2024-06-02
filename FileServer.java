@@ -239,6 +239,10 @@ public class FileServer extends JFrame {
                 connectedLabel.setText("Running");
                 connectedLabel.setForeground(Color.GREEN);
                 connectedDevices = 0; // Reset connected devices count
+                bt1.setText("STOP");
+                bt1.setBounds(300, 600, 180, 35);
+                bt1.setBackground(Color.RED);
+                bt1.setForeground(Color.WHITE);
                 System.out.println("Server started. Waiting for clients...");
 
                 // Listen for clients in a separate thread
