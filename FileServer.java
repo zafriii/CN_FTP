@@ -141,8 +141,6 @@ public class FileServer extends JFrame{
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -215,7 +213,7 @@ public class FileServer extends JFrame {
         bt1.setBackground(Color.GREEN);
         bt1.setForeground(Color.BLACK);
         bt1.setFont(f);
-        bt1.addActionListener(e -> startServer());
+        bt1.addActionListener(e -> toggleServer());
         c.add(bt1);
 
         // Create a panel to hold the files
@@ -229,6 +227,14 @@ public class FileServer extends JFrame {
         c.add(scrollPane);
     }
 
+    private void toggleServer() {
+        if (serverRunning) {
+            stopServer();
+        } else {
+            startServer();
+        }
+    }
+
     private void startServer() {
         int port = 3432; // Port number to listen on
 
@@ -240,7 +246,6 @@ public class FileServer extends JFrame {
                 connectedLabel.setForeground(Color.GREEN);
                 connectedDevices = 0; // Reset connected devices count
                 bt1.setText("STOP");
-                bt1.setBounds(300, 600, 180, 35);
                 bt1.setBackground(Color.RED);
                 bt1.setForeground(Color.WHITE);
                 System.out.println("Server started. Waiting for clients...");
@@ -258,17 +263,31 @@ public class FileServer extends JFrame {
                             Thread clientThread = new Thread(() -> handleClient(clientSocket));
                             clientThread.start();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            if (serverRunning) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
                 serverThread.start();
-            } else {
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopServer() {
+        try {
+            if (serverRunning) {
                 serverRunning = false;
                 connectedLabel.setText("Not started");
                 connectedLabel.setForeground(Color.RED);
                 devicenoLabel.setText("0"); // Reset connected devices count
                 serverSocket.close(); // Close the server socket
+                bt1.setText("START");
+                bt1.setBackground(Color.GREEN);
+                bt1.setForeground(Color.BLACK);
+                System.out.println("Server stopped.");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -341,3 +360,4 @@ public class FileServer extends JFrame {
         frame.setResizable(false);
     }
 }
+
