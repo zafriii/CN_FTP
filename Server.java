@@ -1,16 +1,21 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server implements Runnable {
     private final int port;
     private volatile boolean running = false;
     private ServerSocket serverSocket;
+    private final String FILES_DIR = "files";
+    private ArrayList<String> fileList;
     private final ConcurrentHashMap<ClientHandler, Boolean> clients = new ConcurrentHashMap<>();
 
     public Server(int port) {
         this.port = port;
+        fileList = new ArrayList<>();
     }
 
     public void start() {
@@ -61,11 +66,34 @@ public class Server implements Runnable {
         }
     }
 
+    private void readFileList() {
+
+        File dir = new File(FILES_DIR);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return;
+        }
+
+        String[] files = dir.list();
+        if (files != null && files.length > 0) {
+            for (String fileName : files) {
+                fileList.add(fileName);
+            }
+        }
+
+    }
+
     public void clientDisconnected(ClientHandler handler) {
         clients.remove(handler);
     }
 
     public int getClientCount() {
         return clients.size();
+    }
+
+    public ArrayList<String> getFileList() {
+        if (fileList.size() > 0)
+            fileList.clear();
+        readFileList();
+        return fileList;
     }
 }
