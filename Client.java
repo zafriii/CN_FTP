@@ -86,6 +86,38 @@ public class Client {
         }
     }
 
+    public void sendFile(File file) {
+        try {
+            // Send request type 2 for file transfer
+            output.println(2);
+            output.flush();
+
+            // Send file name and file size
+            output.println(file.getName());
+            output.println(file.length());
+            output.flush();
+
+            FileInputStream fileInputStream = new FileInputStream(file.getAbsolutePath());
+            // Send file data
+            try (BufferedInputStream fileInput = new BufferedInputStream(fileInputStream);
+                    OutputStream socketOutput = socket.getOutputStream()) {
+
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fileInput.read(buffer)) != -1) {
+                    socketOutput.write(buffer, 0, bytesRead);
+                }
+                socketOutput.flush();
+            }
+
+            System.out.println("File sent: " + file.getName());
+
+        } catch (IOException e) {
+            System.out.println("Error sending file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public String getServerIP() {
         return hostname;
     }

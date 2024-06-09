@@ -1,22 +1,24 @@
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingWorker;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class ClientPageGUI extends JFrame {
@@ -29,7 +31,7 @@ public class ClientPageGUI extends JFrame {
     private JPanel filesPanel;
     private Client client;
     private ConnectionUpdater connectionUpdater;
-    private int fileCounter;
+    private final File[] fileToSend = new File[1];
 
     ClientPageGUI(Client client) {
         this.client = client;
@@ -117,6 +119,26 @@ public class ClientPageGUI extends JFrame {
         uploadFileButton.setFont(f);
         container.add(uploadFileButton);
 
+        chooseFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Choose a file to upload");
+
+                if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    fileToSend[0] = fileChooser.getSelectedFile();
+                    fileNameLabel.setText("You have selected " + fileToSend[0].getName());
+                }
+            }
+        });
+
+        uploadFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                client.sendFile(fileToSend[0]);
+            }
+        });
+
         connectionUpdater = new ConnectionUpdater();
         connectionUpdater.execute();
         ;
@@ -126,7 +148,6 @@ public class ClientPageGUI extends JFrame {
     private void addFile(String fileName, int index) {
         JPanel jp = new JPanel();
         jp.setLayout(new FlowLayout(FlowLayout.CENTER));
-    
 
         JLabel fileLabel = new JLabel(fileName);
         jp.add(fileLabel);
@@ -145,9 +166,9 @@ public class ClientPageGUI extends JFrame {
 
         filesPanel.add(jp);
 
-        filesPanel.revalidate(); 
+        filesPanel.revalidate();
         filesPanel.repaint();
-    
+
     }
 
     private class ConnectionUpdater extends SwingWorker<Void, Integer> {
@@ -177,8 +198,6 @@ public class ClientPageGUI extends JFrame {
 
     private void updateFileList() {
         ArrayList<String> files = client.getFileList();
-
-        fileCounter = 1; 
 
         filesPanel.removeAll();
         filesPanel.revalidate();

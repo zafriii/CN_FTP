@@ -5,7 +5,7 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final Server server;
     private static final String FILES_DIR = "files";
-    private volatile boolean running = true; 
+    private volatile boolean running = true;
 
     public ClientHandler(Socket socket, Server server) {
         this.socket = socket;
@@ -62,11 +62,12 @@ public class ClientHandler implements Runnable {
         } else {
             output.println("No files available");
         }
-        output.println("END");  // Indicate the end of the file list
+        output.println("END"); // Indicate the end of the file list
     }
 
     private void receiveFile(BufferedReader input) {
         try {
+
             String fileName = input.readLine();
             long fileSize = Long.parseLong(input.readLine());
             File file = new File(FILES_DIR, fileName);
