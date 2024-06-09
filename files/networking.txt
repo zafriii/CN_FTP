@@ -1,0 +1,40 @@
+Circuit Switching
+
+has three phases; connection establishment, data transfer, connection released;
+data unit knows the entire path address provided by the source
+data is processed in the source system only
+its not a store and forward technique
+resource reservation is the feature because path is fixed for data transmission
+more wastage of resources;
+
+Packet Switching
+directly data transfer takes place
+data unit knows the destination address, intermediate path is decided by the routers.
+data is processed in all intermediate nodes including source node
+it is a store and forward technique
+no resource reservation because the bandwidth is shared among the users.
+less wastage of resources
+=====================================
+
+Internet Layer
+
+Application, Transport, Network, DataLink, Physical
+
+Application: Interact with the end users, provides network services to the user.
+Transport Layer: Responsible for end to end communication between two nodes. Port addressing, segmentation;
+Network Layer: Responsible for delivery of the packets, logical addressing and routing
+data link: Transmits frames from one to another, creates data frames.
+physical layer: responsible for transmitting individual bits
+
+=================
+Socket : one endpoint of a two way communication link between two programs running on the network. interface between application layer and transport layer. process sends and receives message from the network interface called socket.
+
+app layer protocols
+dns: resolve internet names to ip addresses
+telnet: terminal emulation protocol provide remote access to servers and networking devices
+dhcp: assign ip, mask, default gateaway, dns server
+ftp: file transfer protocol
+smtp: transfer male
+
+ssl: provides encrypted tcp connections, data integrity and end point authentication
+
