@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 public class ClientLoginGUI extends JFrame {
@@ -74,8 +75,14 @@ public class ClientLoginGUI extends JFrame {
                 String ip = serverIPField.getText();
                 int port = Integer.parseInt(portField.getText());
 
-                ClientLogin clientLogin = new ClientLogin();
-                boolean connection = clientLogin.connectServer(ip, port);
+                Client client = new Client(ip, port);
+                boolean connection = false;
+                try {
+                    connection = client.connectToServer();
+                } catch (IOException e1) {
+                    connection = false; 
+                    e1.printStackTrace();
+                }
 
                 if (!connection) {
                     JOptionPane.showMessageDialog(container, "Couldn't connect to the server");
@@ -84,7 +91,7 @@ public class ClientLoginGUI extends JFrame {
 
                 dispose();
 
-                ClientPageGUI clientPageGUI = new ClientPageGUI(clientLogin);
+                ClientPageGUI clientPageGUI = new ClientPageGUI(client);
                 clientPageGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 clientPageGUI.setTitle("Skyvault Client");
                 clientPageGUI.setBounds(0, 0, 800, 700);

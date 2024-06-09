@@ -4,6 +4,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingWorker;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -16,12 +17,13 @@ public class ClientPageGUI extends JFrame {
     private JLabel titleLabel, tableTitleLabel, formTitleLabel, fileNameLabel;
     private JLabel serverLabel, servernumLabel, portLabel, portnumLabel, statusLabelKey, statusLabel;
     private JButton chooseFileButton, uploadFileButton;
-
     private JPanel filesPanel;
-    private ClientLogin clientLogin;
+    private Client client;
+    private ConnectionUpdater connectionUpdater;
 
-    ClientPageGUI(ClientLogin clientLogin) {
-        this.clientLogin = clientLogin;
+    ClientPageGUI(Client client) {
+        this.client = client;
+        client.start();
         initComponents();
     }
 
@@ -40,7 +42,7 @@ public class ClientPageGUI extends JFrame {
         serverLabel.setBounds(50, 100, 150, 40);
         container.add(serverLabel);
 
-        servernumLabel = new JLabel(clientLogin.getServerIP());
+        servernumLabel = new JLabel(client.getServerIP());
         servernumLabel.setBounds(110, 100, 150, 40);
         container.add(servernumLabel);
 
@@ -48,7 +50,7 @@ public class ClientPageGUI extends JFrame {
         portLabel.setBounds(50, 120, 150, 40);
         container.add(portLabel);
 
-        portnumLabel = new JLabel(Integer.toString(clientLogin.getPort()));
+        portnumLabel = new JLabel(Integer.toString(client.getPort()));
         portnumLabel.setBounds(140, 120, 150, 40);
         container.add(portnumLabel);
 
@@ -75,9 +77,6 @@ public class ClientPageGUI extends JFrame {
         scrollPane.setBounds(50, 250, 700, 200);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         container.add(scrollPane);
-
-        addFile("Welcome Home.mp4", "File Size: 34MB", 0);
-        addFile("Website logo.png", "File Size: 334KB", 1);
 
         formTitleLabel = new JLabel();
         f = new Font("Times New Roman", Font.BOLD, 15);
@@ -106,17 +105,17 @@ public class ClientPageGUI extends JFrame {
         uploadFileButton.setForeground(Color.WHITE);
         uploadFileButton.setFont(f);
         container.add(uploadFileButton);
+
+        connectionUpdater = new ConnectionUpdater();
+        connectionUpdater.execute();
+        ;
     }
 
     // Method to add a file entry to the filesPanel
-    private void addFile(String fileName, String fileSize, int index) {
+    private void addFile(String fileName, int index) {
         JLabel fileLabel = new JLabel(fileName);
         fileLabel.setBounds(100, 30 + index * 80, 150, 40);
         filesPanel.add(fileLabel);
-
-        JLabel file2Label = new JLabel(fileSize);
-        file2Label.setBounds(100, 60 + index * 80, 150, 40);
-        filesPanel.add(file2Label);
 
         JButton downloadButton = new JButton("Download");
         downloadButton.setBounds(400, 60 + index * 80, 100, 30);
@@ -132,14 +131,38 @@ public class ClientPageGUI extends JFrame {
 
     }
 
-    public static void main(String[] args) {
-        ClientLogin cl = new ClientLogin();
-        cl.connectServer("45.23.56.23", 3232);
-        ClientPageGUI frame = new ClientPageGUI(cl);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setBounds(0, 0, 800, 700);
-        frame.setTitle("Sky Vault file transfer");
-        frame.setResizable(false);
-        frame.setVisible(true);
+    private class ConnectionUpdater extends SwingWorker<Void, Integer> {
+        @Override
+        protected Void doInBackground() throws Exception {
+            while (!isCancelled()) {
+                int isConnected = client.getConnectionStatus() ? 1 : 0;
+                publish(isConnected);
+                Thread.sleep(1000); // Update every second
+            }
+            return null;
+        }
+
+        @Override
+        protected void process(java.util.List<Integer> chunks) {
+            int currStatus = chunks.get(chunks.size() - 1);
+            if (currStatus == 1) {
+                statusLabel.setText("Connected");
+                statusLabel.setForeground(Color.GREEN);
+            } else {
+                statusLabel.setText("Disconnected");
+                statusLabel.setForeground(Color.RED);
+            }
+        }
     }
+
+    // public static void main(String[] args) {
+    // ClientLogin cl = new ClientLogin();
+    // cl.connectServer("45.23.56.23", 3232);
+    // ClientPageGUI frame = new ClientPageGUI(cl);
+    // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    // frame.setBounds(0, 0, 800, 700);
+    // frame.setTitle("Sky Vault file transfer");
+    // frame.setResizable(false);
+    // frame.setVisible(true);
+    // }
 }
