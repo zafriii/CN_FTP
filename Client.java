@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,10 +13,12 @@ public class Client {
     private BufferedReader input;
     private Timer connectionCheckTimer;
     private boolean connectionStatus;
+    private ArrayList<String> fileList;
 
     public Client(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
+        fileList = new ArrayList<>();
     }
 
     public void start() {
@@ -65,12 +68,14 @@ public class Client {
     }
 
     private void requestFileList() {
+        fileList.clear();
         try {
-            output.println(1); // Send request type 1 for file list
+            output.println(1);
             System.out.println("Requesting file list...");
             String response;
             while ((response = input.readLine()) != null && !response.equals("END")) {
                 System.out.println("File: " + response);
+                fileList.add(response);
             }
             System.out.println("End of file list");
         } catch (SocketException e) {
@@ -91,6 +96,10 @@ public class Client {
 
     public boolean getConnectionStatus() {
         return connectionStatus;
+    }
+
+    public ArrayList<String> getFileList() {
+        return fileList;
     }
 
     public static void main(String[] args) {

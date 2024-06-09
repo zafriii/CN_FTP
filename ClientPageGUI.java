@@ -1,3 +1,5 @@
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -8,7 +10,14 @@ import javax.swing.SwingWorker;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
 
 public class ClientPageGUI extends JFrame {
 
@@ -20,6 +29,7 @@ public class ClientPageGUI extends JFrame {
     private JPanel filesPanel;
     private Client client;
     private ConnectionUpdater connectionUpdater;
+    private int fileCounter;
 
     ClientPageGUI(Client client) {
         this.client = client;
@@ -70,12 +80,13 @@ public class ClientPageGUI extends JFrame {
         container.add(tableTitleLabel);
 
         filesPanel = new JPanel();
-        filesPanel.setLayout(null);
+        filesPanel.setLayout(new GridLayout(0, 1));
         filesPanel.setBackground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(filesPanel);
         scrollPane.setBounds(50, 250, 700, 200);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         container.add(scrollPane);
 
         formTitleLabel = new JLabel();
@@ -113,22 +124,30 @@ public class ClientPageGUI extends JFrame {
 
     // Method to add a file entry to the filesPanel
     private void addFile(String fileName, int index) {
+        JPanel jp = new JPanel();
+        jp.setLayout(new FlowLayout(FlowLayout.CENTER));
+    
+
         JLabel fileLabel = new JLabel(fileName);
-        fileLabel.setBounds(100, 30 + index * 80, 150, 40);
-        filesPanel.add(fileLabel);
+        jp.add(fileLabel);
 
         JButton downloadButton = new JButton("Download");
-        downloadButton.setBounds(400, 60 + index * 80, 100, 30);
+        downloadButton.setBounds(400, 30, 100, 30);
         downloadButton.setBackground(Color.GREEN);
         downloadButton.setForeground(Color.BLACK);
-        filesPanel.add(downloadButton);
+        jp.add(downloadButton);
 
         JButton deleteButton = new JButton("Delete");
-        deleteButton.setBounds(530, 60 + index * 80, 100, 30);
+        deleteButton.setBounds(530, 30, 100, 30);
         deleteButton.setBackground(Color.RED);
         deleteButton.setForeground(Color.WHITE);
-        filesPanel.add(deleteButton);
+        jp.add(deleteButton);
 
+        filesPanel.add(jp);
+
+        filesPanel.revalidate(); 
+        filesPanel.repaint();
+    
     }
 
     private class ConnectionUpdater extends SwingWorker<Void, Integer> {
@@ -137,7 +156,8 @@ public class ClientPageGUI extends JFrame {
             while (!isCancelled()) {
                 int isConnected = client.getConnectionStatus() ? 1 : 0;
                 publish(isConnected);
-                Thread.sleep(1000); // Update every second
+                updateFileList();
+                Thread.sleep(10000);
             }
             return null;
         }
@@ -152,6 +172,20 @@ public class ClientPageGUI extends JFrame {
                 statusLabel.setText("Disconnected");
                 statusLabel.setForeground(Color.RED);
             }
+        }
+    }
+
+    private void updateFileList() {
+        ArrayList<String> files = client.getFileList();
+
+        fileCounter = 1; 
+
+        filesPanel.removeAll();
+        filesPanel.revalidate();
+        filesPanel.revalidate();
+
+        for (int i = 0; i < files.size(); i++) {
+            addFile(files.get(i), i);
         }
     }
 
