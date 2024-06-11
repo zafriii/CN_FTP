@@ -13,12 +13,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+
 import java.util.ArrayList;
 
 public class ClientPageGUI extends JFrame {
@@ -135,7 +131,7 @@ public class ClientPageGUI extends JFrame {
         uploadFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.sendFile(fileToSend[0]);
+                new Thread(() -> client.sendFile(fileToSend[0])).run();
             }
         });
 
@@ -164,6 +160,20 @@ public class ClientPageGUI extends JFrame {
         deleteButton.setForeground(Color.WHITE);
         jp.add(deleteButton);
 
+        downloadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                client.downloadFile(fileName);
+            }
+        });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                client.deleteFile(fileName);
+            }
+        });
+
         filesPanel.add(jp);
 
         filesPanel.revalidate();
@@ -178,7 +188,7 @@ public class ClientPageGUI extends JFrame {
                 int isConnected = client.getConnectionStatus() ? 1 : 0;
                 publish(isConnected);
                 updateFileList();
-                Thread.sleep(10000);
+                Thread.sleep(5000);
             }
             return null;
         }
@@ -207,15 +217,4 @@ public class ClientPageGUI extends JFrame {
             addFile(files.get(i), i);
         }
     }
-
-    // public static void main(String[] args) {
-    // ClientLogin cl = new ClientLogin();
-    // cl.connectServer("45.23.56.23", 3232);
-    // ClientPageGUI frame = new ClientPageGUI(cl);
-    // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    // frame.setBounds(0, 0, 800, 700);
-    // frame.setTitle("Sky Vault file transfer");
-    // frame.setResizable(false);
-    // frame.setVisible(true);
-    // }
 }

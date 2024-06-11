@@ -8,9 +8,12 @@ import javax.swing.SwingWorker;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class FileServerGUI extends JFrame {
     private static final int PORT = 3232;
@@ -23,9 +26,12 @@ public class FileServerGUI extends JFrame {
     private JButton serverToggleButton;
     private JPanel filesPanel;
     private ClientCountUpdater clientCountUpdater;
+    private FileListUpdater fileListUpdater;
+    private ArrayList<String> fileList;
 
     FileServerGUI() {
         server = new Server(PORT);
+        fileList = new ArrayList<>();
         initComponents();
     }
 
@@ -82,16 +88,13 @@ public class FileServerGUI extends JFrame {
         container.add(tableTitleLable);
 
         filesPanel = new JPanel();
-        filesPanel.setLayout(null);
+        filesPanel.setLayout(new GridLayout(0, 1));
         filesPanel.setBackground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(filesPanel);
         scrollPane.setBounds(50, 250, 700, 300);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         container.add(scrollPane);
-
-        addFile("Welcome Home.mp4", "File Size: 34MB", 0);
-        addFile("Website logo.png", "File Size: 334KB", 1);
 
         serverToggleButton = new JButton();
         f = new Font("Times New Roman", Font.BOLD, 12);
@@ -114,6 +117,8 @@ public class FileServerGUI extends JFrame {
 
                     clientCountUpdater = new ClientCountUpdater();
                     clientCountUpdater.execute();
+                    fileListUpdater = new FileListUpdater();
+                    fileListUpdater.execute();
                 } else {
                     server.stop();
                     serverToggleButton.setText("Start Server");
@@ -127,14 +132,16 @@ public class FileServerGUI extends JFrame {
     }
 
     // Method to add a file entry to the filesPanel
-    private void addFile(String fileName, String fileSize, int index) {
-        JLabel fileLabel = new JLabel(fileName);
-        fileLabel.setBounds(100, 30 + index * 80, 150, 40);
-        filesPanel.add(fileLabel);
+    private void addFile(String fileName) {
+        JPanel jp = new JPanel();
+        jp.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-        JLabel file2Label = new JLabel(fileSize);
-        file2Label.setBounds(100, 60 + index * 80, 150, 40);
-        filesPanel.add(file2Label);
+        JLabel fileLabel = new JLabel(fileName);
+        jp.add(fileLabel);
+
+        filesPanel.add(jp);
+        filesPanel.revalidate();
+        filesPanel.repaint();
 
     }
 
@@ -154,6 +161,29 @@ public class FileServerGUI extends JFrame {
             int latestCount = chunks.get(chunks.size() - 1);
             deviceCountLabel.setText("" + latestCount);
         }
+    }
+
+    private class FileListUpdater extends SwingWorker<Void, Integer> {
+        @Override
+        protected Void doInBackground() throws Exception {
+            while (!isCancelled()) {
+                fileList = server.getFileList();
+                publish(1);
+                Thread.sleep(5000);
+            }
+            return null;
+        }
+
+        @Override
+        protected void process(java.util.List<Integer> chunks) {
+            filesPanel.removeAll();
+            filesPanel.revalidate();
+            filesPanel.revalidate();
+            for (String s : fileList) {
+                addFile(s);
+            }
+        }
+
     }
 
     public static void main(String[] args) {
