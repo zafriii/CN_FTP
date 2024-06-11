@@ -66,7 +66,7 @@ public class ClientHandler implements Runnable {
                 output.println(fileName);
             }
         } else {
-            output.println("No files available");
+            System.out.println("No files available");
         }
         output.println("END"); // Indicate the end of the file list
     }
