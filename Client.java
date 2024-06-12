@@ -13,6 +13,7 @@ public class Client {
     private BufferedReader input;
     private Timer connectionCheckTimer;
     private boolean connectionStatus;
+    private static String FILES_DIR = "my_files";
     private ArrayList<String> fileList;
 
     public Client(String hostname, int port) {
@@ -116,6 +117,41 @@ public class Client {
             System.out.println("Error sending file: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void downloadFile(String fileName) {
+        try {
+            output.println(3);
+            output.flush();
+
+            output.println(fileName);
+
+            long fileSize = Long.parseLong(input.readLine());
+            File file = new File(FILES_DIR, fileName);
+
+            try (BufferedOutputStream fileOutput = new BufferedOutputStream(new FileOutputStream(file))) {
+                char[] buffer = new char[1024];
+                long bytesRead = 0;
+                while (bytesRead < fileSize) {
+                    int read = input.read(buffer, 0, (int) Math.min(buffer.length, fileSize - bytesRead));
+                    if (read == -1)
+                        break;
+                    fileOutput.write(new String(buffer, 0, read).getBytes());
+                    bytesRead += read;
+                }
+            }
+
+            System.out.println("File received: " + fileName);
+        } catch (IOException ie) {
+
+            System.out.println(ie.getMessage());
+        }
+
+    }
+
+    public void deleteFile(String fileName) {
+        output.println(4);
+        output.println(fileName);
     }
 
     public String getServerIP() {

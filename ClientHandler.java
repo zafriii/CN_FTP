@@ -21,11 +21,17 @@ public class ClientHandler implements Runnable {
             while (running && (message = input.readLine()) != null) {
                 try {
                     int requestType = Integer.parseInt(message);
+
                     if (requestType == 1) {
                         System.out.println("File req received");
-                        sendFileList(output);
+                        new Thread(() -> this.sendFileList(output)).run();
                     } else if (requestType == 2) {
-                        receiveFile(input);
+                        new Thread(() -> this.receiveFile(input)).run();
+                    } else if (requestType == 3) {
+                        new Thread(() -> this.sendFile(input, output)).run();
+                    } else if (requestType == 4) {
+                        new Thread(() -> this.deleteFile(input)).run();
+
                     } else {
                         output.println("Invalid request type");
                     }
@@ -60,7 +66,7 @@ public class ClientHandler implements Runnable {
                 output.println(fileName);
             }
         } else {
-            output.println("No files available");
+            System.out.println("No files available");
         }
         output.println("END"); // Indicate the end of the file list
     }
@@ -89,6 +95,53 @@ public class ClientHandler implements Runnable {
             System.out.println("Error receiving file: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void sendFile(BufferedReader input, PrintWriter output) {
+        try {
+            String fileName = input.readLine();
+
+            File file = new File(FILES_DIR, fileName);
+
+            if (!file.exists() || !file.isFile()) {
+                System.out.println("File not found");
+                return;
+            }
+
+            output.println(file.length());
+
+            try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(file));
+                    OutputStream socketOutput = socket.getOutputStream()) {
+
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fileInput.read(buffer)) != -1) {
+                    socketOutput.write(buffer, 0, bytesRead);
+                }
+                socketOutput.flush();
+            }
+
+            System.out.println("File sent: " + fileName);
+
+        } catch (IOException ie) {
+            System.out.println(ie.getMessage());
+        }
+    }
+
+    private void deleteFile(BufferedReader input) {
+        try {
+            String fileName = input.readLine();
+            File file = new File(FILES_DIR, fileName);
+
+            if (file.exists()) {
+                file.delete();
+            }
+
+            System.out.println("Deleted: " + fileName);
+        } catch (IOException ie) {
+            System.out.println(ie.getMessage());
+        }
+
     }
 
     public void disconnect() {
